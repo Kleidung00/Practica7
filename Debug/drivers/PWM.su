@@ -1,4 +1,0 @@
-../drivers/PWM.c:6:6:vfnPWMInit	8	static
-../drivers/PWM.c:25:9:bfnInitialPos	8	static
-../drivers/PWM.c:32:9:bfnPWMAngleAdjustment	16	static
-../drivers/PWM.c:41:6:vfndelayMs	24	static

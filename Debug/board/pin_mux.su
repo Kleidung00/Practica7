@@ -1,3 +1,0 @@
-C:\Users\claud\Documents\MCUXpressoIDE_11.5.0_7232\workspace\HELLO_demo_apps_hello_world\drivers/fsl_clock.h:584:20:CLOCK_EnableClock	24	static
-C:\Users\claud\Documents\MCUXpressoIDE_11.5.0_7232\workspace\HELLO_demo_apps_hello_world\drivers/fsl_port.h:321:20:PORT_SetPinMux	24	static
-../board/pin_mux.c:67:6:BOARD_InitPins	8	static

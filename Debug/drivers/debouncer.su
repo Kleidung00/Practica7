@@ -1,2 +1,0 @@
-../drivers/debouncer.c:15:6:vfnbuttonInit	24	static
-../drivers/debouncer.c:30:9:bfndebounceUpdate	16	static
