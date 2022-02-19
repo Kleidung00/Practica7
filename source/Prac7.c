@@ -28,38 +28,98 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "fsl_device_registers.h"
+#include <stdio.h>
 #include "fsl_debug_console.h"
 #include "board.h"
-
-//#include "LCDDriver.h"
+#include "LCDDriver.h"
 #include "ADC.h"
 #include "fsl_adc16.h"
-//#include "PITDrv.h"
-//#include "fsl_uart.h"
+#include "PITDrv.h"
+#include "fsl_uart.h"
 #include "LEDDvr.h"
 #include "pin_mux.h"
-//
+#include "peripherals.h"
+#include "clock_config.h"
+#include "MKL25Z4.h"
 //#include "PWM.h"
-//#include "stdio.h"
-//#include "LCDDriver.h"
-//hello
+#include "stdio.h"
+#include "LCDDriver.h"
+#include "Prac7.h"
+
+static void (*vfnTmpStates[])(void) =
+{
+    (void (*)(void))vfnLecturaADC, 		//READ ADC VALUE
+    (void (*)(void))vfnConversion,   		//CONVERT V TO TEMPERATURE
+    (void (*)(void))vfnActualizacion			//PRINT
+};
+
+GPIO_Type *rGpioB = GPIOB;
+
+uint16_t wVoltaje = 0;
+uint16_t wTemperatura = 0;
+uint8_t bEstadoActual = LECTURA_ESTADO;
+
 int main(void)
 {
-	uint16_t wValueADC = 0;
-//	uint16_t bPWMInitial = 0;
-//	uint16_t bPWMAngulo = 0;
-    /* Init board hardware. */
+
     BOARD_InitPins();
     BOARD_BootClockRUN();
     BOARD_InitDebugConsole();
-    ADC_vfnDriverInit();
-//    vfnPWMInit();
-//    bPWMInitial = bfnInitialPos();
-//    bPWMAngulo = bfnPWMAngleAdjustment();
+    vfnDriverInit();
+    vfnLEDsInit();
+
     while (1)
     {
-    	wValueADC = wfnReadADC(0);
-    	PRINTF("%i\r\n", wValueADC);
+    	vfnMaquinaEstados();
+    	vfnBlinkAzul();
     }
+}
+
+void vfnMaquinaEstados(void)
+{
+	vfnTmpStates[bEstadoActual]();
+}
+
+void vfnLecturaADC(void)
+{
+	uint8_t bContador = 0;
+	if(bContador < MUESTRAS)
+	{
+		bContador++;
+		wVoltaje = wVoltaje + wfnReadADC(ADC_0);
+		bEstadoActual = LECTURA_ESTADO;
+	}
+	else
+	{
+		bContador = 0;
+		bEstadoActual = CONVERSION_ESTADO;
+	}
+}
+
+void vfnConversion(void)
+{
+	wVoltaje /= MUESTRAS;
+	wTemperatura = bfnConversionTemp(wVoltaje);
+	bEstadoActual = ACTUALIZACION_ESTADO;
+}
+
+void vfnActualizacion(void)
+{
+	if(bfnPITCheck(PIT_1))
+	{
+		PRINTF("TEMP: %i\n\t", wTemperatura);
+		bEstadoActual = LECTURA_ESTADO;
+	}
+	else
+	{
+		bEstadoActual = ACTUALIZACION_ESTADO;
+	}
+}
+
+void vfnBlinkAzul(void)
+{
+	if(bfnPITCheck(PIT_0))
+	{
+		rGpioB->PTOR |= 1 << PIN_B8;
+	}
 }

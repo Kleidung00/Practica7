@@ -2,7 +2,7 @@
 #include<stdio.h>
 #include "ADC.h"
 
-void ADC_vfnDriverInit (void){
+void vfnDriverInit (void){
 	GPIO_Type *rGpioE = GPIOE;
     SIM->SCGC5 |= SIM_SCGC5_PORTE_MASK;
     PORTE->PCR[PIN_E20] = PORT_PCR_MUX(1);
@@ -25,4 +25,11 @@ uint16_t wfnReadADC (uint8_t bChannel){
     }
     bValueADC = ADC0->R[0];
     return bValueADC;
+}
+
+uint8_t bfnConversionTemp (uint16_t wVoltaje)
+{
+	uint8_t bTemp;
+    bTemp = wVoltaje * VALOR_CONVERSION;
+    return bTemp;
 }
